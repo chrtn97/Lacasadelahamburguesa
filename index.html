@@ -8,28 +8,28 @@
         body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; padding: 10px; font-size: 18px; }
         .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         h2 { text-align: center; color: #d32f2f; margin-bottom: 20px; text-transform: uppercase; }
-        
         label { font-weight: bold; display: block; margin-top: 10px; margin-bottom: 5px; color: #555; }
         select, input, .btn-main { width: 100%; padding: 18px; font-size: 19px !important; border-radius: 12px; border: 2px solid #ccc; margin-bottom: 12px; box-sizing: border-box; }
-        
         .opciones-fijas, .sabores-boneless { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .btn-opt, .btn-sabor { padding: 12px; font-size: 15px; border-radius: 8px; border: 1px solid #d32f2f; background: #fff; color: #d32f2f; cursor: pointer; font-weight: bold; }
         .btn-opt.active, .btn-sabor.active { background: #d32f2f; color: #fff; }
-
         #seccion-sabores { display: none; background: #fff0f0; padding: 10px; border-radius: 10px; border: 1px solid #ffcccc; margin-bottom: 15px; }
-
         .btn-main { background-color: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
         .btn-whatsapp { background-color: #25D366; color: white; border: none; font-weight: bold; cursor: pointer; width: 100%; padding: 18px; font-size: 19px; border-radius: 12px; margin-top: 10px; display: none; }
         .btn-limpiar { background-color: #e67e22; border: none; color: white; margin-top: 20px; }
         .btn-print { background-color: #34495e; border: none; color: white; margin-top: 10px; width: 100%; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; display: none; }
-
         #ticket { background: #fff; border: 2px dashed #000; padding: 15px; margin-top: 20px; font-family: monospace; font-size: 16px; color: #000; }
         .total { font-size: 28px; font-weight: bold; color: #d32f2f; text-align: center; margin-top: 10px; }
-        
-        .item-row { border-bottom: 1px dotted #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; }
+        .item-row { border-bottom: 1px dotted #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: flex-start; }
         .btn-del { background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; margin-left: 10px; }
-        
         #seccion-cliente { display: none; background: #fff9f0; padding: 15px; border-radius: 12px; border: 1px dashed #e67e22; margin-top: 15px; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
+            h2, label, select, .opciones-fijas, #seccion-sabores, .btn-main, #seccion-cliente, .btn-whatsapp, .btn-print, .btn-limpiar, .btn-del { display: none !important; }
+            #ticket { border: none; margin: 0; padding: 10px; width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -40,9 +40,6 @@
     <label>🍔 1. Seleccionar Producto:</label>
     <select id="producto" onchange="verificarBoneless()">
         <option value="0">-- SELECCIONAR --</option>
-        <optgroup label="BONELESS">
-            <option value="95">Boneless (250 gr.) - $95</option>
-        </optgroup>
         <optgroup label="HAMBURGUESAS">
             <option value="50">Clásica - $50</option>
             <option value="55">Tocino - $55</option>
@@ -52,11 +49,21 @@
             <option value="65">Especial - $65</option>
             <option value="75">Camarón - $75</option>
             <option value="75">BBQ - $75</option>
+            <option value="25">Hot Dog - $25</option>
+            <option value="70">Baguette - $70</option>
+            <option value="60">Lonches de Pierna - $60</option>
+            <option value="22">Burritas de Pierna - $22</option>
         </optgroup>
-        <optgroup label="SNACKS Y BEBIDAS">
+        <optgroup label="SNACKS">
+            <option value="95">Boneless (250 gr.) - $95</option>
             <option value="35">Papas a la francesa - $35</option>
             <option value="40">Papas gajo - $40</option>
+            <option value="40">Aros de cebolla - $40</option>
+            <option value="50">Nuggets de pollo - $50</option>
             <option value="100">Dedos de queso - $100</option>
+            <option value="55">1/2 Orden Dedos - $55</option>
+        </optgroup>
+        <optgroup label="BEBIDAS">
             <option value="20">Refrescos (600 ml.) - $20</option>
             <option value="25">Coca-Cola - $25</option>
         </optgroup>
@@ -75,15 +82,17 @@
     <label>⚙️ Opciones rápidas:</label>
     <div class="opciones-fijas">
         <button class="btn-opt" onclick="toggleOpt(this)">Sin verdura</button>
-        <button class="btn-opt" onclick="toggleOpt(this)">Con papas</button>
+        <button id="btn-papas-extra" class="btn-opt" onclick="toggleOpt(this)">Con papas (+$15)</button>
         <button class="btn-opt" onclick="toggleOpt(this)">Sin aderezos</button>
         <button class="btn-opt" onclick="toggleOpt(this)">Doble Carne</button>
     </div>
 
-    <button class="btn-main" onclick="agregarAlPedido()">➕ AÑADIR AL TICKET</button>
+    <button class="btn-main" onclick="agregarAlPedido()">➕ AÑADIR AL PEDIDO</button>
     
     <div id="ticket">
-        <center><b>RECIBO DE VENTA</b></center><br>
+        <center><b>LA CASA DE LA HAMBURGUESA</b></center>
+        <div id="info-cliente-ticket"></div>
+        <hr>
         <div id="detalle-pedido"></div>
         <hr>
         <div class="total" id="total-venda">TOTAL: $0</div>
@@ -91,9 +100,9 @@
 
     <div id="seccion-cliente">
         <label>👤 Datos del Cliente:</label>
-        <input type="text" id="nombre-cliente" placeholder="Nombre">
-        <input type="number" id="telefono" placeholder="Teléfono (Ej: 3312345678)">
-        <input type="text" id="direccion" placeholder="Dirección de entrega">
+        <input type="text" id="nombre-cliente" placeholder="Nombre" oninput="actualizarInfoCliente()">
+        <input type="number" id="telefono" placeholder="Teléfono" oninput="actualizarInfoCliente()">
+        <input type="text" id="direccion" placeholder="Dirección" oninput="actualizarInfoCliente()">
     </div>
 
     <button id="btn-wa" class="btn-whatsapp" onclick="enviarWhatsApp()">🟢 WHATSAPP</button>
@@ -102,7 +111,6 @@
 </div>
 
 <script>
-    let total = 0;
     let items = [];
 
     function verificarBoneless() {
@@ -114,30 +122,50 @@
     function toggleOpt(btn) { btn.classList.toggle('active'); }
     function toggleSabor(btn) { btn.classList.toggle('active'); }
 
+    function actualizarInfoCliente() {
+        const nom = document.getElementById('nombre-cliente').value;
+        const dir = document.getElementById('direccion').value;
+        const tel = document.getElementById('telefono').value;
+        document.getElementById('info-cliente-ticket').innerHTML = `
+            ${nom ? `<br>CLIENTE: ${nom}` : ''}
+            ${tel ? `<br>TEL: ${tel}` : ''}
+            ${dir ? `<br>DIR: ${dir}` : ''}
+        `;
+    }
+
     function agregarAlPedido() {
         const select = document.getElementById('producto');
-        const precio = parseInt(select.value);
+        const precioBase = parseInt(select.value);
         const texto = select.options[select.selectedIndex].text;
         
-        if (precio > 0) {
+        if (precioBase > 0) {
             let notas = [];
-            // Recoger opciones normales
+            let tienePapasExtra = false;
+
+            if (document.getElementById('btn-papas-extra').classList.contains('active')) {
+                tienePapasExtra = true;
+            }
+
             document.querySelectorAll('.btn-opt.active').forEach(btn => {
-                notas.push(btn.innerText);
+                if (btn.id !== 'btn-papas-extra') notas.push(btn.innerText);
                 btn.classList.remove('active');
             });
 
-            // Recoger sabores si es boneless
             let sabores = [];
             document.querySelectorAll('.btn-sabor.active').forEach(btn => {
                 sabores.push(btn.innerText);
                 btn.classList.remove('active');
             });
-            
             if (sabores.length > 0) notas.push("Sabor: " + sabores.join(" y "));
 
             const nombre = texto.split(' - ')[0];
-            items.push({ id: Date.now(), nombre, precio, nota: notas.join(', ') });
+            items.push({ 
+                id: Date.now(), 
+                nombre, 
+                precio: precioBase, 
+                nota: notas.join(', '),
+                papasExtra: tienePapasExtra 
+            });
             
             document.getElementById('seccion-cliente').style.display = 'block';
             document.getElementById('btn-wa').style.display = 'block';
@@ -161,19 +189,31 @@
 
     function actualizarTicket() {
         const detalle = document.getElementById('detalle-pedido');
-        total = 0;
+        let granTotal = 0;
         detalle.innerHTML = items.map(item => {
-            total += item.precio;
+            let subtotalItem = item.precio;
+            let htmlExtra = '';
+            
+            if (item.papasExtra) {
+                subtotalItem += 15;
+                htmlExtra = `<br><div style="display:flex; justify:space-between; font-size:14px; padding-left:10px;"><span>+ Porción Papas</span><span>$15</span></div>`;
+            }
+
+            granTotal += subtotalItem;
             return `
             <div class="item-row">
                 <div style="flex-grow: 1;">
-                    <b>${item.nombre}</b> - $${item.precio}
-                    ${item.nota ? `<br><small><i>(${item.nota})</i></small>` : ''}
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${item.nombre}</b>
+                        <b>$${item.precio}</b>
+                    </div>
+                    ${item.nota ? `<small><i>(${item.nota})</i></small>` : ''}
+                    ${htmlExtra}
                 </div>
                 <button class="btn-del" onclick="eliminarItem(${item.id})">✕</button>
             </div>
         `}).join('');
-        document.getElementById('total-venda').innerText = `TOTAL: $${total}`;
+        document.getElementById('total-venda').innerText = `TOTAL: $${granTotal}`;
     }
 
     function enviarWhatsApp() {
@@ -182,19 +222,26 @@
         const dir = document.getElementById('direccion').value;
         if (!tel) return alert("Ingresa el teléfono");
 
+        let totalWA = 0;
         let mensaje = `*LA CASA DE LA HAMBURGUESA*%0A*CLIENTE:* ${nombre || 'N/A'}%0A*DIR:* ${dir || 'Sucursal'}%0A--------------------------%0A`;
-        items.forEach(item => { mensaje += `• ${item.nombre} ($${item.precio})${item.nota ? ` _(${item.nota})_` : ''}%0A`; });
-        mensaje += `--------------------------%0A*TOTAL: $${total}*`;
+        items.forEach(item => { 
+            let p = item.precio;
+            mensaje += `• ${item.nombre} ($${item.precio})${item.nota ? ` _(${item.nota})_` : ''}%0A`;
+            if(item.papasExtra) {
+                p += 15;
+                mensaje += `  + Porción Papas ($15)%0A`;
+            }
+            totalWA += p;
+        });
+        mensaje += `--------------------------%0A*TOTAL: $${totalWA}*`;
         window.open(`https://wa.me/52${tel}?text=${mensaje}`, '_blank');
     }
 
     function limpiar() {
-        if(confirm("¿Nueva venta?")) {
-            location.reload();
-        }
+        if(confirm("¿Nueva venta?")) { location.reload(); }
     }
 </script>
 
 </body>
             </html>
-    
+            
