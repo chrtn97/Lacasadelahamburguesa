@@ -5,7 +5,7 @@
     <title>POS Pro - La Casa de la Hamburguesa</title>
     <style>
         body { background-color: #f4e1d2; font-family: 'Arial', sans-serif; padding: 10px; }
-        .contenedor { background: white; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 20px; border: 3px solid #e67e22; }
+        .contenedor { background: white; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 20px; border: 3px solid #e67e22; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
         @media print {
             .no-imprimir { display: none !important; }
@@ -19,7 +19,6 @@
         label { font-weight: bold; display: block; margin-top: 10px; }
         input, select, textarea { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
         
-        /* Estilo para los sabores de Boneless */
         #seccionBoneless { background: #fff3e0; border: 2px solid #d35400; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
 
         .opciones-especiales { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -29,10 +28,12 @@
         .btn { padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; color: white; font-size: 18px; }
         .btn-azul { background: #3498db; }
         .btn-naranja { background: #e67e22; }
+        .btn-rojo { background: #e74c3c; padding: 5px 10px; font-size: 14px; width: auto; margin: 0; }
 
         .comanda { background: #fff; border: 2px solid #000; padding: 20px; margin-top: 20px; color: #000; font-size: 22px; font-family: 'Courier New', Courier, monospace; }
         .header-ticket { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
-        .linea { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #ddd; }
+        .linea-item { border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .fila-superior { display: flex; justify-content: space-between; align-items: center; }
         .total { font-size: 28px; text-align: right; margin-top: 20px; font-weight: bold; border-top: 3px solid #000; padding-top: 10px; }
     </style>
 </head>
@@ -40,7 +41,8 @@
 
     <div class="contenedor">
         <div class="no-imprimir">
-            <h1 style="text-align: center; color: #d35400;">🍔 Punto de Venta</h1>
+            <h1 style="text-align: center; color: #d35400; margin-bottom: 5px;">🍔 Punto de Venta</h1>
+            <p style="text-align:center; margin-top:0; font-size: 14px;">La Casa de la Hamburguesa</p>
             
             <div class="formulario">
                 <input type="text" id="nombreCliente" placeholder="Nombre del Cliente">
@@ -63,7 +65,7 @@
                     <optgroup label="Boneless">
                         <option value="80">Boneless Orden - $80</option>
                     </optgroup>
-                    <optgroup label="Snacks/Otros">
+                    <optgroup label="Especialidades/Snacks">
                         <option value="25">Hot Dog - $25</option>
                         <option value="70">Baguette - $70</option>
                         <option value="60">Lonche Pierna - $60</option>
@@ -82,13 +84,13 @@
                 </select>
 
                 <div id="seccionBoneless">
-                    <label>🍗 Elige el Sabor:</label>
+                    <label>🍗 Sabor de Boneless:</label>
                     <select id="saborBoneless">
                         <option value="Búfalo">Búfalo</option>
                         <option value="BBQ">BBQ</option>
                         <option value="Mango Habanero">Mango Habanero</option>
                         <option value="Secos">Secos</option>
-                        <option value="Mitad y Mitad">Mitad y Mitad (Combinados)</option>
+                        <option value="Mitad y Mitad">Mitad y Mitad</option>
                     </select>
                 </div>
 
@@ -98,7 +100,7 @@
                     <label><input type="checkbox" id="conPapas"> + Papas ($15)</label>
                 </div>
 
-                <textarea id="notaExtra" rows="2" placeholder="Notas adicionales"></textarea>
+                <textarea id="notaExtra" rows="1" placeholder="Notas adicionales..."></textarea>
                 <input type="number" id="cantidad" value="1" min="1">
                 
                 <button class="btn btn-azul" onclick="agregarAlTicket()">➕ AGREGAR AL PEDIDO</button>
@@ -117,7 +119,7 @@
 
         <div class="no-imprimir" id="acciones" style="display:none;">
             <button class="btn btn-naranja" onclick="window.print()">🖨️ IMPRIMIR TICKET</button>
-            <button class="btn" style="background:#7f8c8d;" onclick="location.reload()">🔄 NUEVA VENTA</button>
+            <button class="btn" style="background:#7f8c8d;" onclick="nuevaVenta()">🔄 NUEVA VENTA</button>
         </div>
     </div>
 
@@ -127,7 +129,6 @@
         function detectarBoneless() {
             let p = document.getElementById('producto');
             let seccionB = document.getElementById('seccionBoneless');
-            // Si el texto contiene "Boneless", mostramos los sabores
             seccionB.style.display = p.options[p.selectedIndex].text.includes("Boneless") ? "block" : "none";
         }
 
@@ -136,33 +137,46 @@
             let nombre = select.options[select.selectedIndex].text.split(" -")[0];
             let precio = parseInt(select.value);
             let cant = parseInt(document.getElementById('cantidad').value);
-            
             let extras = [];
             
-            // Si es Boneless, añadir el sabor al nombre
             if (nombre.includes("Boneless")) {
                 let sabor = document.getElementById('saborBoneless').value;
                 nombre += " (" + sabor + ")";
             }
 
-            if (document.getElementById('sinVerdura').checked) extras.push("SIN VERDURA");
-            if (document.getElementById('sinAderezos').checked) extras.push("SIN ADEREZOS");
+            if (document.getElementById('sinVerdura').checked) extras.push("S/VERDURA");
+            if (document.getElementById('sinAderezos').checked) extras.push("S/ADEREZOS");
             if (document.getElementById('conPapas').checked) { precio += 15; extras.push("+PAPAS"); }
             
             let nota = document.getElementById('notaExtra').value;
             if (nota) extras.push("NOTA: " + nota);
 
-            carrito.push({ nombre: nombre, cant: cant, subtotal: precio * cant, detalles: extras.join(" | ") });
+            // Guardamos cada item con un ID único basado en el tiempo para poder borrarlo luego
+            carrito.push({
+                id: Date.now(),
+                nombre: nombre,
+                cant: cant,
+                subtotal: precio * cant,
+                detalles: extras.join(" | ")
+            });
+
             actualizarVista();
-            
-            // Limpiar selección de extras para el siguiente producto
-            document.getElementById('sinVerdura').checked = false;
-            document.getElementById('sinAderezos').checked = false;
-            document.getElementById('conPapas').checked = false;
-            document.getElementById('notaExtra').value = "";
+            resetFormulario();
+        }
+
+        function eliminarItem(id) {
+            // Filtramos el carrito para quitar el elemento que tenga ese ID
+            carrito = carrito.filter(item => item.id !== id);
+            actualizarVista();
         }
 
         function actualizarVista() {
+            if (carrito.length === 0) {
+                document.getElementById('ticket').style.display = "none";
+                document.getElementById('acciones').style.display = "none";
+                return;
+            }
+
             document.getElementById('ticket').style.display = "block";
             document.getElementById('acciones').style.display = "block";
             document.getElementById('fechaHora').innerHTML = new Date().toLocaleString();
@@ -174,13 +188,35 @@
             let html = ""; let total = 0;
             carrito.forEach(item => {
                 total += item.subtotal;
-                html += `<div style="margin-bottom: 10px;">
-                            <div class="linea"><span><b>${item.cant}x</b> ${item.nombre}</span><span>$${item.subtotal}</span></div>
-                            <div style="font-size: 18px; color: #444;">${item.detalles}</div>
-                         </div>`;
+                html += `
+                    <div class="linea-item">
+                        <div class="fila-superior">
+                            <span><b>${item.cant}x</b> ${item.nombre}</span>
+                            <span>$${item.subtotal}</span>
+                            <button class="btn btn-rojo no-imprimir" onclick="eliminarItem(${item.id})">🗑️</button>
+                        </div>
+                        <div style="font-size: 18px; color: #444;">${item.detalles}</div>
+                    </div>`;
             });
             document.getElementById('listaArticulos').innerHTML = html;
             document.getElementById('granTotal').innerHTML = "TOTAL: $" + total;
+        }
+
+        function resetFormulario() {
+            document.getElementById('sinVerdura').checked = false;
+            document.getElementById('sinAderezos').checked = false;
+            document.getElementById('conPapas').checked = false;
+            document.getElementById('notaExtra').value = "";
+            document.getElementById('cantidad').value = 1;
+        }
+
+        function nuevaVenta() {
+            if(confirm("¿Borrar todo el pedido actual?")) {
+                carrito = [];
+                document.getElementById('nombreCliente').value = "";
+                document.getElementById('dirCliente').value = "";
+                actualizarVista();
+            }
         }
     </script>
 </body>
