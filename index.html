@@ -2,222 +2,150 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>POS Pro - La Casa de la Hamburguesa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POS - La Casa de la Hamburguesa</title>
     <style>
-        body { background-color: #f4e1d2; font-family: 'Arial', sans-serif; padding: 10px; }
-        .contenedor { background: white; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 20px; border: 3px solid #e67e22; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        
-        @media print {
-            .no-imprimir { display: none !important; }
-            body { background: white; padding: 0; }
-            .contenedor { border: none; width: 100%; max-width: 100%; }
-            .comanda { font-size: 24px !important; line-height: 1.4; }
-            .total { font-size: 32px !important; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background-color: #f4f4f4; 
+            padding: 10px; 
+            font-size: 18px; 
         }
-
-        .formulario { background: #fdf2e9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #e67e22; }
-        label { font-weight: bold; display: block; margin-top: 10px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+        .container { 
+            max-width: 500px; 
+            margin: auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+        }
+        h2 { text-align: center; color: #d32f2f; margin-bottom: 20px; font-size: 24px; text-transform: uppercase; }
+        label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 8px; }
         
-        #seccionBoneless { background: #fff3e0; border: 2px solid #d35400; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
+        select, button { 
+            width: 100%; 
+            padding: 20px; 
+            font-size: 20px !important; 
+            border-radius: 12px; 
+            border: 2px solid #ccc; 
+            margin-bottom: 15px;
+            display: block;
+            background-color: #fff;
+        }
+        
+        button { background-color: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:active { background-color: #1e8449; transform: scale(0.95); }
+        .btn-limpiar { background-color: #e67e22; }
+        .btn-print { background-color: #34495e; }
 
-        .opciones-especiales { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .opciones-especiales label { font-size: 14px; display: flex; align-items: center; margin: 0; font-weight: normal; }
-        .opciones-especiales input { width: auto; margin-right: 8px; }
-
-        .btn { padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; color: white; font-size: 18px; }
-        .btn-azul { background: #3498db; }
-        .btn-naranja { background: #e67e22; }
-        .btn-rojo { background: #e74c3c; padding: 5px 10px; font-size: 14px; width: auto; margin: 0; }
-
-        .comanda { background: #fff; border: 2px solid #000; padding: 20px; margin-top: 20px; color: #000; font-size: 22px; font-family: 'Courier New', Courier, monospace; }
-        .header-ticket { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
-        .linea-item { border-bottom: 1px solid #ddd; padding: 10px 0; }
-        .fila-superior { display: flex; justify-content: space-between; align-items: center; }
-        .total { font-size: 28px; text-align: right; margin-top: 20px; font-weight: bold; border-top: 3px solid #000; padding-top: 10px; }
+        #ticket { 
+            background: #fff; 
+            border: 2px dashed #000; 
+            padding: 15px; 
+            margin-top: 20px; 
+            font-family: monospace;
+            font-size: 18px;
+        }
+        .total { font-size: 32px; font-weight: bold; color: #d32f2f; text-align: center; margin-top: 10px; }
+        .linea-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 5px 0; }
     </style>
 </head>
 <body>
 
-    <div class="contenedor">
-        <div class="no-imprimir">
-            <h1 style="text-align: center; color: #d35400; margin-bottom: 5px;">🍔 Punto de Venta</h1>
-            <p style="text-align:center; margin-top:0; font-size: 14px;">La Casa de la Hamburguesa</p>
-            
-            <div class="formulario">
-                <input type="text" id="nombreCliente" placeholder="Nombre del Cliente">
-                <input type="text" id="dirCliente" placeholder="Dirección en Tonalá">
-            </div>
+<div class="container">
+    <h2>La Casa de la Hamburguesa</h2>
+    
+    <label>🛒 Seleccionar Producto:</label>
+    <select id="producto">
+        <option value="0">-- ABRIR MENÚ --</option>
+        
+        <optgroup label="HAMBURGUESAS">
+            <option value="50">Clásica - $50</option>
+            <option value="55">Tocino - $55</option>
+            <option value="60">Hawaiana - $60</option>
+            <option value="60">Pollo - $60</option>
+            <option value="60">Arrachera - $60</option>
+            <option value="65">Especial - $65</option>
+            <option value="75">Camarón - $75</option>
+            <option value="75">BBQ - $75</option>
+        </optgroup>
 
-            <div class="formulario">
-                <label>Seleccionar Producto:</label>
-                <select id="producto" onchange="detectarBoneless()">
-                    <optgroup label="Hamburguesas">
-                        <option value="50">Clásica - $50</option>
-                        <option value="55">Tocino - $55</option>
-                        <option value="60">Hawaiana - $60</option>
-                        <option value="60">Pollo - $60</option>
-                        <option value="60">Arrachera - $60</option>
-                        <option value="65">Especial - $65</option>
-                        <option value="75">Camarón - $75</option>
-                        <option value="75">Hamburguesa BBQ - $75</option>
-                    </optgroup>
-                    <optgroup label="Boneless">
-                        <option value="95">Boneless Orden - $95</option>
-                    </optgroup>
-                    <optgroup label="Especialidades/Snacks">
-                        <option value="25">Hot Dog - $25</option>
-                        <option value="70">Baguette - $70</option>
-                        <option value="60">Lonche Pierna - $60</option>
-                        <option value="60">Burrito Pierna - $60</option>
-                        <option value="35">Papas Francesas - $35</option>
-                        <option value="40">Papas Gajo - $40</option>
-                        <option value="40">Aros Cebolla - $40</option>
-                        <option value="50">Nuggets - $50</option>
-                        <option value="100">Dedos Queso (10p) - $100</option>
-                        <option value="55">Dedos Queso (5p) - $55</option>
-                    </optgroup>
-                    <optgroup label="Bebidas">
-                        <option value="20">Refresco - $20</option>
-                        <option value="25">Coca Cola - $25</option>
-                    </optgroup>
-                </select>
+        <optgroup label="SNACKS">
+            <option value="95">Boneless (250 gr.) - $95</option>
+            <option value="35">Papas a la francesa - $35</option>
+            <option value="40">Papas gajo - $40</option>
+            <option value="50">Nuggets de pollo - $50</option>
+            <option value="40">Aros de cebolla - $40</option>
+            <option value="100">Dedos de queso - $100</option>
+            <option value="55">1/2 Orden Dedos Queso - $55</option>
+            <option value="15">Extra porción papas - $15</option>
+        </optgroup>
 
-                <div id="seccionBoneless">
-                    <label>🍗 Sabor de Boneless:</label>
-                    <select id="saborBoneless">
-                        <option value="Búfalo">Búfalo</option>
-                        <option value="BBQ">BBQ</option>
-                        <option value="Mango Habanero">Mango Habanero</option>
-                        <option value="Secos">Secos</option>
-                        <option value="Mitad y Mitad">Mitad y Mitad</option>
-                    </select>
-                </div>
+        <optgroup label="OTROS">
+            <option value="25">Hot Dog - $25</option>
+            <option value="70">Baguette - $70</option>
+            <option value="60">Lonches de Pierna - $60</option>
+            <option value="22">Burritas de Pierna - $22</option>
+        </optgroup>
 
-                <div class="opciones-especiales">
-                    <label><input type="checkbox" id="sinVerdura"> Sin Verdura</label>
-                    <label><input type="checkbox" id="sinAderezos"> Sin Aderezos</label>
-                    <label><input type="checkbox" id="conPapas"> + Papas ($15)</label>
-                </div>
+        <optgroup label="BEBIDAS">
+            <option value="20">Refrescos (600 ml.) - $20</option>
+            <option value="25">Coca-Cola - $25</option>
+        </optgroup>
+    </select>
 
-                <textarea id="notaExtra" rows="1" placeholder="Notas adicionales..."></textarea>
-                <input type="number" id="cantidad" value="1" min="1">
-                
-                <button class="btn btn-azul" onclick="agregarAlTicket()">➕ AGREGAR AL PEDIDO</button>
-            </div>
-        </div>
-
-        <div id="ticket" class="comanda" style="display:none;">
-            <div class="header-ticket">
-                <h2 style="margin:0;">LA CASA DE LA HAMBURGUESA</h2>
-                <div id="fechaHora" style="font-size: 16px;"></div>
-            </div>
-            <div id="datosEntrega"></div>
-            <div id="listaArticulos"></div>
-            <div class="total" id="granTotal">TOTAL: $0</div>
-        </div>
-
-        <div class="no-imprimir" id="acciones" style="display:none;">
-            <button class="btn btn-naranja" onclick="window.print()">🖨️ IMPRIMIR TICKET</button>
-            <button class="btn" style="background:#7f8c8d;" onclick="nuevaVenta()">🔄 NUEVA VENTA</button>
-        </div>
+    <button onclick="agregarAlPedido()">➕ AÑADIR AL TICKET</button>
+    
+    <div id="ticket">
+        <center><b>RECIBO DE VENTA</b></center><br>
+        <div id="detalle-pedido"></div>
+        <hr>
+        <div class="total" id="total-venda">TOTAL: $0</div>
     </div>
 
-    <script>
-        let carrito = [];
+    <button onclick="limpiar()" class="btn-limpiar">🔄 NUEVA VENTA</button>
+    <button onclick="window.print()" class="btn-print">📸 CAPTURA / IMPRIMIR</button>
+</div>
 
-        function detectarBoneless() {
-            let p = document.getElementById('producto');
-            let seccionB = document.getElementById('seccionBoneless');
-            seccionB.style.display = p.options[p.selectedIndex].text.includes("Boneless") ? "block" : "none";
+<script>
+    let total = 0;
+    let items = [];
+
+    function agregarAlPedido() {
+        const select = document.getElementById('producto');
+        const precio = parseInt(select.value);
+        const texto = select.options[select.selectedIndex].text;
+
+        if (precio > 0) {
+            total += precio;
+            const nombre = texto.split(' - ')[0];
+            items.push({ nombre: nombre, precio: precio });
+            actualizarTicket();
         }
+    }
 
-        function agregarAlTicket() {
-            let select = document.getElementById('producto');
-            let nombre = select.options[select.selectedIndex].text.split(" -")[0];
-            let precio = parseInt(select.value);
-            let cant = parseInt(document.getElementById('cantidad').value);
-            let extras = [];
-            
-            if (nombre.includes("Boneless")) {
-                let sabor = document.getElementById('saborBoneless').value;
-                nombre += " (" + sabor + ")";
-            }
+    function actualizarTicket() {
+        const detalle = document.getElementById('detalle-pedido');
+        const totalDisplay = document.getElementById('total-venda');
+        detalle.innerHTML = items.map(item => `
+            <div class="linea-item">
+                <span>${item.nombre}</span>
+                <span>$${item.precio}</span>
+            </div>
+        `).join('');
+        totalDisplay.innerText = `TOTAL: $${total}`;
+    }
 
-            if (document.getElementById('sinVerdura').checked) extras.push("S/VERDURA");
-            if (document.getElementById('sinAderezos').checked) extras.push("S/ADEREZOS");
-            if (document.getElementById('conPapas').checked) { precio += 15; extras.push("+PAPAS"); }
-            
-            let nota = document.getElementById('notaExtra').value;
-            if (nota) extras.push("NOTA: " + nota);
-
-            // Guardamos cada item con un ID único basado en el tiempo para poder borrarlo luego
-            carrito.push({
-                id: Date.now(),
-                nombre: nombre,
-                cant: cant,
-                subtotal: precio * cant,
-                detalles: extras.join(" | ")
-            });
-
-            actualizarVista();
-            resetFormulario();
+    function limpiar() {
+        if(confirm("¿Borrar venta actual?")) {
+            total = 0;
+            items = [];
+            document.getElementById('detalle-pedido').innerHTML = "";
+            document.getElementById('total-venda').innerText = "TOTAL: $0";
+            document.getElementById('producto').value = "0";
         }
+    }
+</script>
 
-        function eliminarItem(id) {
-            // Filtramos el carrito para quitar el elemento que tenga ese ID
-            carrito = carrito.filter(item => item.id !== id);
-            actualizarVista();
-        }
-
-        function actualizarVista() {
-            if (carrito.length === 0) {
-                document.getElementById('ticket').style.display = "none";
-                document.getElementById('acciones').style.display = "none";
-                return;
-            }
-
-            document.getElementById('ticket').style.display = "block";
-            document.getElementById('acciones').style.display = "block";
-            document.getElementById('fechaHora').innerHTML = new Date().toLocaleString();
-            
-            let nom = document.getElementById('nombreCliente').value || "PÚBLICO GENERAL";
-            let dir = document.getElementById('dirCliente').value || "MOSTRADOR";
-            document.getElementById('datosEntrega').innerHTML = `<b>CLI:</b> ${nom}<br><b>DIR:</b> ${dir}<hr>`;
-
-            let html = ""; let total = 0;
-            carrito.forEach(item => {
-                total += item.subtotal;
-                html += `
-                    <div class="linea-item">
-                        <div class="fila-superior">
-                            <span><b>${item.cant}x</b> ${item.nombre}</span>
-                            <span>$${item.subtotal}</span>
-                            <button class="btn btn-rojo no-imprimir" onclick="eliminarItem(${item.id})">🗑️</button>
-                        </div>
-                        <div style="font-size: 18px; color: #444;">${item.detalles}</div>
-                    </div>`;
-            });
-            document.getElementById('listaArticulos').innerHTML = html;
-            document.getElementById('granTotal').innerHTML = "TOTAL: $" + total;
-        }
-
-        function resetFormulario() {
-            document.getElementById('sinVerdura').checked = false;
-            document.getElementById('sinAderezos').checked = false;
-            document.getElementById('conPapas').checked = false;
-            document.getElementById('notaExtra').value = "";
-            document.getElementById('cantidad').value = 1;
-        }
-
-        function nuevaVenta() {
-            if(confirm("¿Borrar todo el pedido actual?")) {
-                carrito = [];
-                document.getElementById('nombreCliente').value = "";
-                document.getElementById('dirCliente').value = "";
-                actualizarVista();
-            }
-        }
-    </script>
 </body>
 </html>
