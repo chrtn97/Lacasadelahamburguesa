@@ -11,9 +11,11 @@
         label { font-weight: bold; display: block; margin-top: 10px; margin-bottom: 5px; color: #555; }
         select, input, textarea, .btn-main { width: 100%; padding: 18px; font-size: 19px !important; border-radius: 12px; border: 2px solid #ccc; margin-bottom: 12px; box-sizing: border-box; }
         
-        /* Estilo para el cuadro de observaciones */
-        textarea { height: 80px; resize: none; font-family: inherit; background-color: #fffdec; border: 2px solid #f1c40f; }
+        /* Estilo para Cantidad */
+        .seccion-cantidad { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .input-cantidad { width: 80px !important; text-align: center; margin-bottom: 0 !important; border: 2px solid #27ae60 !important; }
 
+        textarea { height: 80px; resize: none; font-family: inherit; background-color: #fffdec; border: 2px solid #f1c40f; }
         .opciones-fijas, .sabores-boneless { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .btn-opt, .btn-sabor { padding: 12px; font-size: 15px; border-radius: 8px; border: 1px solid #d32f2f; background: #fff; color: #d32f2f; cursor: pointer; font-weight: bold; }
         .btn-opt.active, .btn-sabor.active { background: #d32f2f; color: #fff; }
@@ -33,7 +35,7 @@
         @media print {
             body { background: white; padding: 0; }
             .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
-            h2, label, select, .opciones-fijas, #seccion-sabores, .btn-main, textarea, #seccion-cliente, .btn-whatsapp, .btn-print, .btn-limpiar, .btn-del { display: none !important; }
+            h2, label, select, .opciones-fijas, #seccion-sabores, .btn-main, textarea, #seccion-cliente, .btn-whatsapp, .btn-print, .btn-limpiar, .btn-del, .seccion-cantidad { display: none !important; }
             #ticket { border: none; margin: 0; padding: 10px; width: 100%; }
         }
     </style>
@@ -75,6 +77,11 @@
             <option value="16">Gelatina - $16</option>
         </optgroup>
     </select>
+
+    <div class="seccion-cantidad">
+        <label style="margin-top:0">🔢 Cantidad:</label>
+        <input type="number" id="cantidad" class="input-cantidad" value="1" min="1">
+    </div>
 
     <div id="seccion-sabores">
         <label>🍗 Elige Sabor(es):</label>
@@ -147,6 +154,7 @@
         const select = document.getElementById('producto');
         const precioBase = parseInt(select.value);
         const texto = select.options[select.selectedIndex].text;
+        const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
         const notaEspecial = document.getElementById('observacion-item').value;
         
         if (precioBase > 0) {
@@ -169,13 +177,13 @@
             });
             if (sabores.length > 0) notas.push("Sabor: " + sabores.join(" y "));
             
-            // Añadir la nota del recuadro si existe
             if (notaEspecial.trim() !== "") notas.push("NOTA: " + notaEspecial);
 
             const nombre = texto.split(' - ')[0];
             items.push({ 
                 id: Date.now(), 
                 nombre, 
+                cantidad: cantidad,
                 precio: precioBase, 
                 nota: notas.join(', '),
                 papasExtra: tienePapasExtra 
@@ -187,7 +195,8 @@
             
             actualizarTicket();
             document.getElementById('seccion-sabores').style.display = 'none';
-            document.getElementById('observacion-item').value = ""; // Limpiar nota
+            document.getElementById('observacion-item').value = "";
+            document.getElementById('cantidad').value = "1"; // Reset cantidad
             select.value = "0";
         }
     }
@@ -206,21 +215,21 @@
         const detalle = document.getElementById('detalle-pedido');
         let granTotal = 0;
         detalle.innerHTML = items.map(item => {
-            let subtotalItem = item.precio;
+            let subtotalFila = item.precio * item.cantidad;
             let htmlExtra = '';
             
             if (item.papasExtra) {
-                subtotalItem += 15;
-                htmlExtra = `<br><div style="display:flex; justify:space-between; font-size:14px; padding-left:10px;"><span>+ Porción Papas</span><span>$15</span></div>`;
+                subtotalFila += (15 * item.cantidad);
+                htmlExtra = `<br><div style="display:flex; justify-content:space-between; font-size:14px; padding-left:10px;"><span>+ ${item.cantidad} Papas</span><span>$${15 * item.cantidad}</span></div>`;
             }
 
-            granTotal += subtotalItem;
+            granTotal += subtotalFila;
             return `
             <div class="item-row">
                 <div style="flex-grow: 1;">
                     <div style="display:flex; justify-content:space-between;">
-                        <b>${item.nombre}</b>
-                        <b>$${item.precio}</b>
+                        <b>${item.cantidad}x ${item.nombre}</b>
+                        <b>$${item.precio * item.cantidad}</b>
                     </div>
                     ${item.nota ? `<small><i>(${item.nota})</i></small>` : ''}
                     ${htmlExtra}
@@ -240,11 +249,11 @@
         let totalWA = 0;
         let mensaje = `*LA CASA DE LA HAMBURGUESA*%0A*CLIENTE:* ${nombre || 'N/A'}%0A*DIR:* ${dir || 'Sucursal'}%0A--------------------------%0A`;
         items.forEach(item => { 
-            let p = item.precio;
-            mensaje += `• ${item.nombre} ($${item.precio})${item.nota ? ` _(${item.nota})_` : ''}%0A`;
+            let p = (item.precio * item.cantidad);
+            mensaje += `• ${item.cantidad}x ${item.nombre} ($${item.precio * item.cantidad})${item.nota ? ` _(${item.nota})_` : ''}%0A`;
             if(item.papasExtra) {
-                p += 15;
-                mensaje += `  + Porción Papas ($15)%0A`;
+                p += (15 * item.cantidad);
+                mensaje += `  + ${item.cantidad} Papas ($${15 * item.cantidad})%0A`;
             }
             totalWA += p;
         });
