@@ -11,9 +11,13 @@
         label { font-weight: bold; display: block; margin-top: 10px; margin-bottom: 5px; color: #555; }
         select, input, textarea, .btn-main { width: 100%; padding: 18px; font-size: 19px !important; border-radius: 12px; border: 2px solid #ccc; margin-bottom: 12px; box-sizing: border-box; }
         
-        /* Estilo para Cantidad */
+        /* Seccion Cantidad y Pago */
         .seccion-cantidad { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .input-cantidad { width: 80px !important; text-align: center; margin-bottom: 0 !important; border: 2px solid #27ae60 !important; }
+        
+        .metodos-pago { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn-pago { padding: 15px; font-size: 16px; border-radius: 10px; border: 2px solid #34495e; background: #fff; color: #34495e; cursor: pointer; font-weight: bold; }
+        .btn-pago.active { background: #34495e; color: #fff; }
 
         textarea { height: 80px; resize: none; font-family: inherit; background-color: #fffdec; border: 2px solid #f1c40f; }
         .opciones-fijas, .sabores-boneless { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
@@ -28,6 +32,7 @@
         
         #ticket { background: #fff; border: 2px dashed #000; padding: 15px; margin-top: 20px; font-family: monospace; font-size: 16px; color: #000; }
         .total { font-size: 28px; font-weight: bold; color: #d32f2f; text-align: center; margin-top: 10px; }
+        .metodo-ticket { text-align: center; font-weight: bold; margin-top: 5px; border: 1px solid #000; padding: 5px; }
         .item-row { border-bottom: 1px dotted #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: flex-start; }
         .btn-del { background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; margin-left: 10px; }
         #seccion-cliente { display: none; background: #fff9f0; padding: 15px; border-radius: 12px; border: 1px dashed #e67e22; margin-top: 15px; }
@@ -35,7 +40,7 @@
         @media print {
             body { background: white; padding: 0; }
             .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
-            h2, label, select, .opciones-fijas, #seccion-sabores, .btn-main, textarea, #seccion-cliente, .btn-whatsapp, .btn-print, .btn-limpiar, .btn-del, .seccion-cantidad { display: none !important; }
+            h2, label, select, .opciones-fijas, #seccion-sabores, .btn-main, textarea, #seccion-cliente, .btn-whatsapp, .btn-print, .btn-limpiar, .btn-del, .seccion-cantidad, .metodos-pago { display: none !important; }
             #ticket { border: none; margin: 0; padding: 10px; width: 100%; }
         }
     </style>
@@ -113,9 +118,16 @@
         <div id="detalle-pedido"></div>
         <hr>
         <div class="total" id="total-venda">TOTAL: $0</div>
+        <div id="metodo-pago-ticket" class="metodo-ticket" style="display:none;"></div>
     </div>
 
     <div id="seccion-cliente">
+        <label>💳 Método de Pago:</label>
+        <div class="metodos-pago">
+            <button class="btn-pago active" onclick="seleccionarPago(this, 'EFECTIVO')">💵 EFECTIVO</button>
+            <button class="btn-pago" onclick="seleccionarPago(this, 'TRANSFERENCIA')">📱 TRANSF.</button>
+        </div>
+
         <label>👤 Datos del Cliente:</label>
         <input type="text" id="nombre-cliente" placeholder="Nombre" oninput="actualizarInfoCliente()">
         <input type="number" id="telefono" placeholder="Teléfono" oninput="actualizarInfoCliente()">
@@ -129,6 +141,7 @@
 
 <script>
     let items = [];
+    let metodoSeleccionado = "EFECTIVO";
 
     function verificarBoneless() {
         const select = document.getElementById('producto');
@@ -138,6 +151,15 @@
 
     function toggleOpt(btn) { btn.classList.toggle('active'); }
     function toggleSabor(btn) { btn.classList.toggle('active'); }
+
+    function seleccionarPago(btn, metodo) {
+        document.querySelectorAll('.btn-pago').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        metodoSeleccionado = metodo;
+        const divTicket = document.getElementById('metodo-pago-ticket');
+        divTicket.style.display = 'block';
+        divTicket.innerText = "PAGO: " + metodo;
+    }
 
     function actualizarInfoCliente() {
         const nom = document.getElementById('nombre-cliente').value;
@@ -193,10 +215,15 @@
             document.getElementById('btn-wa').style.display = 'block';
             document.getElementById('btn-print').style.display = 'block';
             
+            // Mostrar metodo de pago inicial en ticket
+            const divTicket = document.getElementById('metodo-pago-ticket');
+            divTicket.style.display = 'block';
+            divTicket.innerText = "PAGO: " + metodoSeleccionado;
+
             actualizarTicket();
             document.getElementById('seccion-sabores').style.display = 'none';
             document.getElementById('observacion-item').value = "";
-            document.getElementById('cantidad').value = "1"; // Reset cantidad
+            document.getElementById('cantidad').value = "1";
             select.value = "0";
         }
     }
@@ -257,7 +284,7 @@
             }
             totalWA += p;
         });
-        mensaje += `--------------------------%0A*TOTAL: $${totalWA}*`;
+        mensaje += `--------------------------%0A*TOTAL: $${totalWA}*%0A*PAGO:* ${metodoSeleccionado}`;
         window.open(`https://wa.me/52${tel}?text=${mensaje}`, '_blank');
     }
 
@@ -267,5 +294,5 @@
 </script>
 
 </body>
-    </html>
+            </html>
     
