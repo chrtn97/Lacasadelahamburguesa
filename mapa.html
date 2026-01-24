@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interno | Burgers 🍔</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --accent: #e11d48; --dark: #1c1917; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--dark); color: white; }
+        
+        #map { height: 75vh; width: 100%; border-bottom: 4px solid var(--accent); }
+        
+        .panel { padding: 15px; height: 25vh; box-sizing: border-box; text-align: center; }
+        .stats { margin-bottom: 10px; }
+        .counter { font-size: 2rem; font-weight: 900; color: #fbbf24; margin: 0; }
+        .label { font-size: 0.7rem; text-transform: uppercase; color: #a8a29e; letter-spacing: 1px; }
+
+        .search-box { width: 100%; max-width: 350px; padding: 12px; border-radius: 10px; border: none; font-size: 16px; margin-top: 10px; }
+        
+        /* Popups */
+        .leaflet-popup-content-wrapper { background: #292524; color: white; border-radius: 10px; padding: 5px; }
+        .btn-gps { background: #22c55e; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="panel">
+    <div class="stats">
+        <h2 class="counter" id="total">0</h2>
+        <p class="label">Clientes Registrados</p>
+    </div>
+    <input type="text" id="buscador" class="search-box" placeholder="🔍 Buscar cliente..." oninput="filtrar()">
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Configuración del Mapa
+    var map = L.map('map').setView([20.6242, -103.2425], 14);
+    var marcadores = [];
+
+    // Capa de Satélite de Google
+    L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3'],
+        attribution: 'Google Satélite'
+    }).addTo(map);
+
+    // Tu enlace de Excel (Ya incluido)
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBxdR4mLKnasUIgtMjGLA68K-7j8QPKrsp6jJ5DePF2tb-O0Qod_LHZ5pEf4iX1rdMP2ZeqVlHu-V4/pub?output=csv';
+
+    async function cargarDatos() {
+        try {
+            const respuesta = await fetch(CSV_URL + '&t=' + Math.random());
+            const contenido = await respuesta.text();
+            const lineas = contenido.split(/\r?\n/).slice(1);
+            
+            let total = 0;
+            lineas.forEach(linea => {
+                const c = linea.split(',');
+                if (c[1] && c[2]) {
+                    const nombre = c[0].trim();
+                    const lat = parseFloat(c[1]);
+                    const lng = parseFloat(c[2]);
+
+                    const m = L.marker([lat, lng]).addTo(map);
+                    m.bindPopup(`
+                        <div style="text-align:center">
+                            <b style="font-size:14px">${nombre}</b><br>
+                            <button class="btn-gps" onclick="window.open('https://www.google.com/maps?q=${lat},${lng}')">📍 IR CON GPS</button>
+                        </div>
+                    `);
+                    
+                    marcadores.push({ nombre: nombre.toLowerCase(), marker: m });
+                    total++;
+                }
+            });
+            document.getElementById('total').innerText = total;
+        } catch (err) {
+            console.error("Error al cargar clientes");
+        }
+    }
+
+    function filtrar() {
+        const busqueda = document.getElementById('buscador').value.toLowerCase();
+        marcadores.forEach(item => {
+            if (item.nombre.includes(busqueda) && busqueda !== "") {
+                map.setView(item.marker.getLatLng(), 18);
+                item.marker.openPopup();
+            }
+        });
+    }
+
+    cargarDatos();
+</script>
+</body>
+</html>
